@@ -1,71 +1,32 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
-tot_d=0
-tot_f=0
-tot_sz=0
-
-class F:
-	def __init__(self, name, typ, size, p):
-		self.name=name
-		self.typ=typ
-		self.size=size
-		self.parent=p
-		self.kids={}
-		if typ == 'd':
-			global tot_d
-			tot_d += 1
-		else:
-			global tot_f
-			tot_f += 1
-		global tot_sz
-		tot_sz += size
-	def path(self):
-		for d in self:
-	def newdir(self, name):
-		if name in self.kids:
-			return self.kids[name]
-		print('create dir', name)
-		k = F(name, 'd', 0, self)
-		self.kids[name] = k
-		return k
-	def newfile(self, name, size):
-		if name in self.kids:
-			return self.kids[name]
-		print('create file', name)
-		k = F(name, 'f', size, self)
-		self.kids[name] = k
-		return k
-
-def main(commands):
-	root=F("/", 'd', 0, None)
-	cwd=root
+def calc(commands):
+	dirsize={}
+	cwd=['(root)']
 	lines=commands.splitlines()
 	while len(lines):
-		c=lines.pop().strip()
-		if c == '':
-			continue
-		elif c == '$ cd ..':
-			print(cwd)
-			cwd=cwd.parent
-		#elif c.startswith('$ cd /'):
-		elif c.startswith('$ cd '):
-			dn=c[5:]
-			cwd=cwd.newdir(dn)
+		c=lines.pop(0).strip()
+		if c.startswith('$ cd '):
+			n=c[5:]
+			if n == '/':
+				cwd=['(root)']
+			elif n == '..':
+				cwd.pop()
+			else:
+				cwd.append(n)
 		elif c == '$ ls':
-			while len(lines) and len(lines[0]) and lines[0][0] != '$':
-				item=lines.pop().strip()
-				if item.startswith('dir '):
-					dn=item[4:]
-					cwd.newdir(dn)
-				else:
+			while len(lines) and lines[0][0] != '$':
+				item=lines.pop(0).strip()
+				if item[0].isnumeric(): #don't care about lines starting with dir
 					sz,name = item.split()
-					cwd.newfile(name,sz)
-	print('total files', tot_f)
-	print('total dirs', tot_d)
-	print('total size', tot_sz)
+					for parent_path in [cwd[:l+1] for l in range(len(cwd))]:
+						containerdir='/'.join(parent_path) # add size to every parent
+						dirsize[containerdir] = dirsize.get(containerdir,0) + int(sz)
+		else:
+			assert False
+	return sum(filter(lambda s: s<=100000, dirsize.values()))
 
-commands="""
-$ cd /
+print(calc("""$ cd /
 $ ls
 dir cvt
 4967 hcqbmwc.gts
@@ -1014,7 +975,5 @@ $ cd ..
 $ cd ..
 $ cd gqc
 $ ls
-156273 wpgwrdl
-"""
-main(commands)
+156273 wpgwrdl"""))
 
