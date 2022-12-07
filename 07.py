@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-def calc(commands):
+def main(commands):
 	dirsize={}
 	cwd=['(root)']
 	lines=commands.splitlines()
@@ -24,9 +24,13 @@ def calc(commands):
 						dirsize[containerdir] = dirsize.get(containerdir,0) + int(sz)
 		else:
 			assert False
-	return sum(filter(lambda s: s<=100000, dirsize.values()))
+	print('part 1:', sum(filter(lambda s: s<=100000, dirsize.values())))
+	tot,need=70000000, 30000000
+	avail=tot - dirsize['(root)']
+	szDel=need-avail
+	print('part2:', sorted(filter(lambda x: x[1]>=szDel, dirsize.items()), key=lambda x: x[1])[0])
 
-print(calc("""$ cd /
+main("""$ cd /
 $ ls
 dir cvt
 4967 hcqbmwc.gts
@@ -975,5 +979,5 @@ $ cd ..
 $ cd ..
 $ cd gqc
 $ ls
-156273 wpgwrdl"""))
+156273 wpgwrdl""")
 
