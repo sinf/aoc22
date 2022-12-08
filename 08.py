@@ -21,6 +21,45 @@ def main(data):
 			visible[y*sx + x] |= all(col[i] < c for i in range(y))
 			visible[y*sx + x] |= all(col[i] < c for i in range(y+1, sy))
 	print(sum(visible))
+	# part 2
+	score=[1]*len(trees)
+	for y in range(sy):
+		for x in range(sx):
+			line=trees[y*sx : y*sx + sx]
+			w=0
+			e=0
+			for h in reversed(line[:x]):
+				w += 1
+				if h >= line[x]:
+					break
+			for h in line[x+1:]:
+				e += 1
+				if h >= line[x]:
+					break
+			score[y*sx + x] *= w * e
+	for x in range(sx):
+		col=[trees[y*sx + x] for y in range(sy)]
+		for y in range(sy):
+			n=0
+			s=0
+			for h in reversed(col[:y]):
+				n += 1
+				if h >= col[y]:
+					break
+			for h in col[y+1:]:
+				s += 1
+				if h >= col[y]:
+					break
+			score[y*sx + x] *= n * s
+	print(max(score))
+
+main("""
+30373
+25512
+65332
+33549
+35390
+""")
 
 main("""
 101232232424431123432342554040352101405502025646520640026102435415402415524241404341001022013221221
